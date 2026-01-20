@@ -1,0 +1,149 @@
+---
+title: "Predictive Analysis"
+subtitle: "Problem Set 1: An Introduction"
+author: "RABINDRANATH TAGORE"
+date: "2026-01-19"
+output: html_document
+---
+
+## Problem Statement
+
+Download “Boston” housing data from MASS library in R. Complete the task given below and submit the report using R markdown. You need to copy each question as well.
+
+#### Loading the data
+
+```{r}
+rm(list=ls())
+library(MASS)
+data=Boston
+attach(data)
+head(data)
+```
+
+
+#### Problem 1
+
+Report the “class” of the data set. How many rows and columns are in this dataset? What do the rows and columns represent?
+
+```{r}
+class(data) #To find the "class" of the dataset
+```
+```{r}
+dim(data) #To find the number of rows and the columns present in the data 
+```
+
+We can see there are 506 rows and 14 columns in the dataset.
+
+Each of the 506 rows represent each of the suburbs of the town Boston and the 14 columns represent fourteen variables describing each suburb.
+
+
+#### Problem 2
+
+Create a smaller data set with the variables median value of owner-occupied homes, per capita crime rate, nitrogen oxides concentration, proportion of blacks and percentage of lower status of the population. Choosing median value of owner occupied homes as the response and the rest as the predictors, make scatter plots of the response versus each predictor. Present the scatter plots in different panels of the same graph. Comment on your findings.
+
+```{r}
+df=data.frame(medv,crim,black,nox,lstat) #partitioning the data into smaller data
+head(df)
+```
+
+```{r}
+#scatter plots
+par(mfrow=c(2,2))
+plot(crim,medv,main="Scatterplot of medv against crim")
+plot(black,medv,main="Scatterplot of medv against black")
+plot(nox,medv,main="Scatterplot of medv against nox")
+plot(lstat,medv,main="Scatterplot of medv against lstat")
+```
+
+Interpretation:
+
+medv vs crim -
+
+There is a clear negative relationship.
+As crime rate increases, median house value generally decreases.
+Most high medv values are concentrated at very low crime rates, while high crime areas almost always have low medv.
+The relationship is nonlinear, with a sharp drop in medv even for moderate increases in crim, and a few extreme crime outliers.
+
+medv vs black -
+
+The points are highly scattered, with no clear linear pattern. While higher values of black are often associated with slightly higher median house values, the spread is large, indicating low strength of association. Overall, black has a weak and noisy relationship with medv compared to variables like lstat or nox.
+
+medv vs nox -
+
+There is a clear negative association.
+As nitrogen oxide concentration increases (worse air quality), median house value decreases.
+The relationship looks nonlinear, with medv dropping sharply beyond moderate nox levels.
+This suggests environmental quality strongly affects housing prices.
+
+medv vs lstat -
+
+This is the strongest and clearest relationship among the four.
+There is a strong negative, nonlinear relationship: as the percentage of lower-status population increases, median house value decreases sharply.
+High medv values occur almost exclusively at low lstat levels, while high lstat areas have consistently low medv.
+
+#### Problem 3
+
+Which suburb of Boston has lowest median value of owner-occupied homes? What are the values of the other predictors mentioned in (2), for that suburb. How do these values compare to the overall ranges for those predictors? Comment on your findings. Hint: Mention which percentile these values belong to.
+
+```{r}
+#To find the lowest median value and values of the corresponding predictors
+lowest.medv=df[medv==min(medv), ]
+lowest.medv
+```
+
+The lowest median value comes out as 5000 dollars. And suburb 399 and suburb 406 have the lowest median value of owner-occupied homes which is 5000 dollars.
+
+```{r}
+#Creating a percentile function
+percentile=function(x, value) {
+  mean(x<=value)*100
+}
+```
+
+```{r}
+#For suburb 399
+sapply(c("crim","nox","lstat","black"), function(v)
+  percentile(df[[v]], lowest.medv[[v]][1])
+)
+```
+
+```{r}
+#For suburb 406
+sapply(c("crim","nox","lstat","black"), function(v)
+  percentile(df[[v]], lowest.medv[[v]][2])
+)
+```
+
+Comment:
+
+Two suburbs share the lowest median house value (medv = 5). Both fall in the extreme upper percentiles for crime (≈99th) and high percentiles for nitrogen oxide concentration (nox ≈86th). The lower-status population (lstat) is also very high, ranging from about the 90th to 98th percentile. In contrast, black varies widely between the two suburbs (≈35th to 100th percentile), showing no consistent pattern.
+
+
+#### Problem 4
+
+Does any suburb of Boston stand out for having notably high crime rates, tax rates, or pupil–teacher ratios? Hint: Use a boxplot to detect any outliers. If so, identify the suburbs that show the outlier values.
+
+```{r}
+#Boxplots
+par(mfrow = c(1,3))
+boxplot(crim,main="Crime rate (crim)")
+boxplot(tax,main="Tax rate (tax)")
+boxplot(ptratio,main="Pupil–Teacher ratio (ptratio)")
+```
+
+Comment:
+
+We can observe the presence of outliers for Crime rate and Pupil-Teacher ratio but not for the tax rates from the boxplots.
+
+Crime rate -
+
+Yes, several suburbs clearly stand out as extreme outliers with very high crime rates. These values lie far beyond the upper whisker of the boxplot, indicating crime levels much higher than the majority of Boston suburbs.
+
+Pupil-Teacher ratio -
+
+The outliers occur on the lower end, indicating a few suburbs with unusually low pupil–teacher ratio compared to the rest.
+
+
+---
+
+
